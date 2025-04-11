@@ -22,6 +22,7 @@
           packages = with pkgs; [
             nodejs
             nodePackages.prettier
+            minio-client
           ];
         };
       }

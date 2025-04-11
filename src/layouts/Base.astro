@@ -10,9 +10,14 @@ import "../styles/global.css";
     <meta name="generator" content={Astro.generator} />
     <title>Ghaf Archive</title>
   </head>
-  <body class="w-screen">
-    <div class="w-3xl m-auto border-solid border-2 rounded-md p-4 mt-4">
+  <body class="font-mono w-screen flex flex-col min-h-screen justify-between">
+    <div>
       <slot />
     </div>
+    <footer class="w-screen items-end my-5">
+      <p class="text-sm m-auto text-center">
+        Copyright 2022-2025 TII (SSRC) and the Ghaf contributors
+      </p>
+    </footer>
   </body>
 </html>

@@ -17,8 +17,9 @@ export async function getS3Versions(): Promise<string[]> {
 
   const result = await s3.send(command);
 
-  const folders = (result.CommonPrefixes || []).map((cp) => cp.Prefix);
+  const folders = (result.CommonPrefixes || []).map((cp) => cp.Prefix?.split('/')[0]);
 
+  folders.sort().reverse();
   return folders.filter(Boolean) as string[];
 }
 
@@ -36,5 +37,6 @@ export async function listFilesInVersion(version: string): Promise<string[]> {
     .filter((obj) => obj.Key !== prefix) // ignore folder placeholder if any
     .map((obj) => obj.Key!.replace(prefix, "")); // strip prefix to get filename
 
+  files.sort();
   return files;
 }

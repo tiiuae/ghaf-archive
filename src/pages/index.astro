@@ -1,12 +1,11 @@
 ---
 import { getS3Versions } from "../lib/artifacts.ts";
-import Layout from "../layouts/Layout.astro";
+import Files from "../layouts/Files.astro";
 
 const versions = await getS3Versions();
 ---
 
-<Layout>
-  <h1>Ghaf Releases</h1>
+<Files>
   <ul>
     {
       versions.map((v) => (
@@ -16,4 +15,4 @@ const versions = await getS3Versions();
       ))
     }
   </ul>
-</Layout>
+</Files>
