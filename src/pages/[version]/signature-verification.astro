@@ -1,0 +1,23 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getVersions } from "../../lib/artifacts";
+
+export async function getStaticPaths() {
+  return getVersions().map((version) => ({
+    params: { version },
+  }));
+}
+
+const { version } = Astro.params;
+---
+
+<Layout>
+  <a class="text-2xl" href={`/${version}`}>../</a>
+  <h1>Signature verification of Binaries</h1>
+  <p>
+    instructions for {version} go here<p>
+      <h1>Signature verification of Provenance file</h1>
+      <p>instructions for {version} go here<p></p></p>
+    </p>
+  </p></Layout
+>

@@ -1,0 +1,19 @@
+---
+import { getS3Versions } from "../lib/artifacts.ts";
+import Layout from "../layouts/Layout.astro";
+
+const versions = await getS3Versions();
+---
+
+<Layout>
+  <h1>Ghaf Releases</h1>
+  <ul>
+    {
+      versions.map((v) => (
+        <li>
+          <a href={`/${v}/`}>{v}</a>
+        </li>
+      ))
+    }
+  </ul>
+</Layout>

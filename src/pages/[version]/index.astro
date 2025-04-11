@@ -1,0 +1,48 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getS3Versions, listFilesInVersion } from "../../lib/artifacts";
+
+export async function getStaticPaths() {
+  const versions = await getS3Versions();
+  return versions.map((version) => ({
+    params: { version },
+  }));
+}
+
+const { version } = Astro.params;
+const files = await listFilesInVersion(version);
+---
+
+<Layout>
+  <div class="flex gap-1 mb-3">
+    <a class="text-2xl" href="/">../</a>
+    <h1>{version}</h1>
+  </div>
+  <ul>
+    <li>
+      <a href={`https://tiiuae.github.io/ghaf/release_notes/${version}.html`}
+        >Release notes</a
+      >
+    </li>
+    <li><a href="/keys/themisto.pub">Public key</a></li>
+    <li>
+      <a href={`/${version}/signature-verification`}
+        >Signature verification instructions</a
+      >
+    </li>
+  </ul>
+  <h2 class="mt-4 mb-1">Binaries</h2>
+  <ul>
+    {
+      files.map((f) => (
+        <li>
+          <a
+            href={`https://hel1.your-objectstorage.com/ghaf-artifacts/${version}/${f}`}
+          >
+            {f}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</Layout>

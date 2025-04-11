@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@import "tailwindcss/preflight" @tailwind utilities;
+
+@layer base {
+  body {
+    background-color: var(--color-black);
+    color: var(--color-white);
+  }
+  h1 {
+    font-size: var(--text-2xl);
+  }
+  h2 {
+    font-size: var(--text-xl);
+  }
+  h3 {
+    font-size: var(--text-lg);
+  }
+  a {
+    color: var(--color-green-500);
+    text-decoration-line: underline;
+  }
+  a:hover {
+    color: var(--color-green-200);
+  }
+}
