@@ -1,6 +1,6 @@
 # Ghaf Archive
 
-Built with Astro
+![diagram](diagram.png)
 
 ## 🧞 Commands
 
