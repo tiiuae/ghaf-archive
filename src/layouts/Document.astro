@@ -1,12 +1,14 @@
 ---
 import Base from "./Base.astro";
+import Markdown from "../components/Markdown.astro";
+
+const { frontmatter } = Astro.props;
 ---
 
-<Base>
-  <div class="w-5xl m-auto">
-    <h1 class="font-mono text-3xl my-6">Ghaf Archive</h1>
-    <div class="border-solid border-2 rounded-md p-4">
+<Base title={frontmatter.title}>
+  <div class="w-5xl m-auto mt-8">
+    <Markdown>
       <slot />
-    </div>
+    </Markdown>
   </div>
 </Base>

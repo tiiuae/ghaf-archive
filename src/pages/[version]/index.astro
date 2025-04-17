@@ -1,46 +1,66 @@
 ---
 import Files from "../../layouts/Files.astro";
-import { getS3Versions, listFilesInVersion } from "../../lib/artifacts";
+import { getGhafReleases, getArtifactsInRelease } from "../../lib/artifacts";
+import { S3_BUCKET, S3_ENDPOINT, S3_REGION } from "../../lib/constants";
 
 export async function getStaticPaths() {
-  const versions = await getS3Versions();
-  return versions.map((version) => ({
+  const releases = await getGhafReleases();
+  return releases.map((version) => ({
     params: { version },
   }));
 }
 
 const { version } = Astro.params;
+const files = await getArtifactsInRelease(version);
+const release = `https://${S3_REGION}.${S3_ENDPOINT}/${S3_BUCKET}/${version}`;
 
-const files = await listFilesInVersion(version);
-const storage = "https://hel1.your-objectstorage.com/ghaf-artifacts";
-const releaseNotes = `https://tiiuae.github.io/ghaf/release_notes/${version}.html`;
+const links = [
+  {
+    emoji: "📄",
+    label: "Release notes",
+    link: `https://tiiuae.github.io/ghaf/release_notes/${version}.html`,
+  },
+  {
+    emoji: "🏷",
+    label: "Release tag",
+    link: `https://github.com/tiiuae/ghaf/releases/tag/${version}`,
+  },
+  {
+    emoji: "🔑",
+    label: "Signature verification instructions",
+    link: "/signature-verification",
+  },
+];
 ---
 
-<Files>
-  <div class="flex gap-1">
-    <a class="text-2xl" href="/">../</a>
-    <h1>{version}</h1>
+<Files title={version}>
+  <div class="flex gap-1"></div>
+
+  <div class="border-solid border-2 rounded-md p-4">
+    <h2>
+      <a class="text-white opacity-60 hover:opacity-100" href="/">Releases</a>/{
+        version
+      }
+    </h2>
+    <ul class="mt-4">
+      {
+        links.map((link) => (
+          <li class="flex gap-1">
+            <span class="w-5 text-center">{link.emoji}</span>
+            <a href={link.link}>{link.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+    <h2 class="mt-4">Artifacts</h2>
+    <ul>
+      {
+        files.map((file) => (
+          <li>
+            <a href={`${release}/${file}`}>{file}</a>
+          </li>
+        ))
+      }
+    </ul>
   </div>
-  <ul class="mt-4">
-    <li>
-      <span>📄</span>
-      <a href={releaseNotes}> Release notes </a>
-    </li>
-    <li>
-      <span>🔑</span>
-      <a href={`/${version}/signature-verification`}>
-        Signature verification
-      </a>
-    </li>
-  </ul>
-  <h2 class="mt-4 mb-1">Artifacts</h2>
-  <ul>
-    {
-      files.map((f) => (
-        <li>
-          <a href={`${storage}/${version}/${f}`}>{f}</a>
-        </li>
-      ))
-    }
-  </ul>
 </Files>

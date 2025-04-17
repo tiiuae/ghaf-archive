@@ -1,17 +1,16 @@
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { defaultProvider } from "@aws-sdk/credential-provider-node";
+import { S3_BUCKET, S3_REGION, S3_ENDPOINT } from "./constants";
 
 const s3 = new S3Client({
-  region: "hel1",
-  endpoint: "https://hel1.your-objectstorage.com",
+  region: S3_REGION,
+  endpoint: `https://${S3_REGION}.${S3_ENDPOINT}`,
   credentials: defaultProvider(),
 });
 
-const BUCKET = "ghaf-artifacts";
-
-export async function getS3Versions(): Promise<string[]> {
+export async function getGhafReleases(): Promise<string[]> {
   const command = new ListObjectsV2Command({
-    Bucket: BUCKET,
+    Bucket: S3_BUCKET,
     Delimiter: "/",
   });
 
@@ -23,11 +22,11 @@ export async function getS3Versions(): Promise<string[]> {
   return folders.filter(Boolean) as string[];
 }
 
-export async function listFilesInVersion(version: string): Promise<string[]> {
+export async function getArtifactsInRelease(version: string): Promise<string[]> {
   const prefix = `${version}/`;
 
   const command = new ListObjectsV2Command({
-    Bucket: BUCKET,
+    Bucket: S3_BUCKET,
     Prefix: prefix,
   });
 
