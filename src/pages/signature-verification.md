@@ -35,8 +35,8 @@ Signature verification result: {'message': 'Signature Verification Result', 'is_
 ```sh
 nix run github:tiiuae/ci-yubi#verify -- \
     --cert INT-Ghaf-Devenv-Image \
-    --path provenance.json \
-    --sigfile provenance.json.sig
+    --path scs/provenance.json \
+    --sigfile scs/provenance.json.sig
 ```
 
 ```
