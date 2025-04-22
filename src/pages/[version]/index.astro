@@ -14,7 +14,9 @@ const { version } = Astro.params;
 const files = await getArtifactsInRelease(version);
 const release = `https://${S3_REGION}.${S3_ENDPOINT}/${S3_BUCKET}/${version}`;
 
-const links = [
+const oldSignatures = ["ghaf-23.09", "ghaf-23.12", "ghaf-24.03", "ghaf-24.06"];
+
+let links = [
   {
     emoji: "📄",
     label: "Release notes",
@@ -25,7 +27,22 @@ const links = [
     label: "Release tag",
     link: `https://github.com/tiiuae/ghaf/releases/tag/${version}`,
   },
+  {
+    emoji: "✅",
+    label: "Signature verification instructions",
+    link: oldSignatures.includes(version)
+      ? "/signature-verification-themisto"
+      : "/signature-verification",
+  },
 ];
+
+if (oldSignatures.includes(version)) {
+  links.push({
+    emoji: "🔑",
+    label: "themisto.pub",
+    link: "/keys/themisto.pub",
+  });
+}
 ---
 
 <Files title={version}>

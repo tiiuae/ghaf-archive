@@ -1,0 +1,45 @@
+---
+layout: ../layouts/Document.astro
+title: Ghaf Signature Verification (themisto)
+---
+## Signature verification step-by-step instructions with signing key
+
+1. Download the target artifact you want from the release page (here represented as `archive.tar`)
+2. Navigate to where the tar file is.
+3. Extract the archive into a folder and enter it:
+
+```sh
+tar -xf archive.tar
+cd archive
+cd Image
+tar xf *.tar.xz
+ls
+```
+
+4. Download sha256tree.py script (required for calculating hashes for directory trees):
+
+```sh
+wget https://raw.githubusercontent.com/tiiuae/ci-public/main/sha256tree/sha256tree.py
+```
+
+5. Create the hash of the output directory, convert to binary and decode it:
+
+```sh
+python3 sha256tree.py --plain x038z51wl2cpb06g7v5wg52r85w1v0aq-ghaf-host-disko-images > digest.hex
+xxd -r -p digest.hex digest.bin
+openssl enc -base64 -d -in h63fl926x4nl9q1j3lv0gqim7j8yq32j-x038z51wl2cpb06g7v5wg52r85w1v0aq-ghaf-host-disko-images-themisto.signature -out signature.bin
+```
+
+6. Download the `themisto.pub` signing key from the release page.
+
+7. Verify the signature:
+
+```sh
+openssl dgst -sha256 -verify themisto.pub -signature signature.bin digest.bin
+```
+
+8. You should see the following message upon successful signature verification:
+
+```
+Verified OK
+```

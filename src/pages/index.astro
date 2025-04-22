@@ -3,19 +3,6 @@ import { getGhafReleases } from "../lib/artifacts.ts";
 import Files from "../layouts/Files.astro";
 
 const releases = await getGhafReleases();
-
-const links = [
-  {
-    emoji: "🔑",
-    label: "Signature verification",
-    link: "/signature-verification",
-  },
-  {
-    emoji: "📄",
-    label: "Ghaf documentation",
-    link: "https://tiiuae.github.io/ghaf",
-  },
-];
 ---
 
 <Files title="Ghaf Archive">
@@ -26,19 +13,6 @@ const links = [
         releases.map((version) => (
           <li>
             <a href={`/${version}/`}>{version}</a>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
-  <div class="border-solid border-2 rounded-md p-4 mt-8">
-    <h2>Other links</h2>
-    <ul>
-      {
-        links.map((link) => (
-          <li class="flex gap-1">
-            <span class="w-5 text-center">{link.emoji}</span>
-            <a href={link.link}>{link.label}</a>
           </li>
         ))
       }
