@@ -13,7 +13,7 @@ set -o pipefail # exit if any pipeline command fails
 
 MYNAME=$(basename "$0")
 RED='' NONE=''
-OUTDIR="/tmp/ghaf-artifacts"
+OUTDIR="/tmp"
 
 ################################################################################
 
@@ -154,7 +154,7 @@ main() {
 	exit_unless_command_exists wget
 	exit_unless_command_exists tar
 	exit_unless_valid_url "$URL"
-	mkdir "$OUTDIR"
+	echo "Downloading files to $OUTDIR/artifacts"
 	get_recursively "$URL" "$OUTDIR"
 	tar_subdirs "$OUTDIR"
 	printf "\nWrote: '%s'\n" "$(readlink -f "$OUTDIR")"
