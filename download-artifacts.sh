@@ -156,8 +156,8 @@ main() {
 	exit_unless_valid_url "$URL"
 	echo "Downloading files to $OUTDIR/artifacts"
 	get_recursively "$URL" "$OUTDIR"
-	tar_subdirs "$OUTDIR"
-	printf "\nWrote: '%s'\n" "$(readlink -f "$OUTDIR")"
+	tar_subdirs "$OUTDIR/artifacts"
+	printf "\nWrote: '%s'\n" "$(readlink -f "$OUTDIR/artifacts")"
 }
 
 main "$@"
