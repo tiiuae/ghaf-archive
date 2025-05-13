@@ -2,16 +2,33 @@ ARTIFACTS_URL="https://ghaf-jenkins-controller-prod.northeurope.cloudapp.azure.c
 BUILD_NAME="${ARTIFACTS_URL%/}"
 BUILD_NAME="${BUILD_NAME##*/}"
 ARTIFACTS_DOWNLOAD_DIR="/tmp/$BUILD_NAME"
-
-# 1. download artifacts
+DOWNLOAD=1
 
 if [ -d "$ARTIFACTS_DOWNLOAD_DIR" ]; then
-	echo "$ARTIFACTS_DOWNLOAD_DIR exists, assuming download is already done..."
-else
-	./download-artifacts.sh -u "$ARTIFACTS_URL" -o "$ARTIFACTS_DOWNLOAD_DIR"
+	read -r -p "$ARTIFACTS_DOWNLOAD_DIR exists, skip download step? [y/N] " response
+	response=${response,,} # lower
+	if [[ "$response" =~ ^(yes|y)$ ]]; then
+		echo "Using files already present"
+		DOWNLOAD=0
+	else
+		DOWNLOAD=1
+	fi
 fi
 
-# 2. check files
+if [ "$DOWNLOAD" == 1 ]; then
+	echo "[+] Checking all files are present before downloading..."
+	./check-all-targets.sh "$ARTIFACTS_URL"
+
+	read -r -p "OK to continue downloading? [y/N] " response
+	response=${response,,} # lower
+	if [[ ! "$response" =~ ^(yes|y)$ ]]; then
+		echo "Aborting..."
+		exit 0
+	fi
+
+	echo "[+] Downloading artifacts"
+	./download-artifacts.sh -u "$ARTIFACTS_URL" -o "$ARTIFACTS_DOWNLOAD_DIR"
+fi
 
 # 3. verify sigs
 
