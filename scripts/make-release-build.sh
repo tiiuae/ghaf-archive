@@ -32,4 +32,6 @@ fi
 
 # 3. verify sigs
 
+./verify-signatures "$ARTIFACTS_DOWNLOAD_DIR"
+
 # 4. upload to s3
