@@ -2,6 +2,8 @@
 import Files from "../../layouts/Files.astro";
 import { getGhafReleases, getArtifactsInRelease } from "../../lib/artifacts";
 import { S3_BUCKET, S3_ENDPOINT, S3_REGION } from "../../lib/constants";
+import { getDocsVersion } from "../../lib/calver";
+import type { Rule } from "../../lib/calver";
 
 export async function getStaticPaths() {
   const releases = await getGhafReleases();
@@ -10,11 +12,25 @@ export async function getStaticPaths() {
   }));
 }
 
+const docsRules: Rule[] = [
+  {
+    range: { min: "23.09", max: "24.06" },
+    version: "v1",
+  },
+  {
+    range: { min: "24.09", max: "24.09.2" },
+    version: "v2",
+  },
+  {
+    range: { min: "24.09.3", max: null },
+    version: "v3",
+  },
+];
+
 const { version } = Astro.params;
 const files = await getArtifactsInRelease(version);
 const release = `https://${S3_REGION}.${S3_ENDPOINT}/${S3_BUCKET}/${version}`;
-
-const oldSignatures = ["ghaf-23.09", "ghaf-23.12", "ghaf-24.03", "ghaf-24.06"];
+const docsVersion = getDocsVersion(docsRules, version.split("-")[1]);
 
 let links = [
   {
@@ -27,21 +43,22 @@ let links = [
     label: "Release tag",
     link: `https://github.com/tiiuae/ghaf/releases/tag/${version}`,
   },
-  {
-    emoji: "✅",
-    label: "Signature verification instructions",
-    link: oldSignatures.includes(version)
-      ? "/signature-verification-themisto"
-      : "/signature-verification",
-  },
 ];
 
-if (oldSignatures.includes(version)) {
+if (docsVersion !== null) {
   links.push({
-    emoji: "🔑",
-    label: "themisto.pub",
-    link: "/keys/themisto.pub",
+    emoji: "✅",
+    label: "Signature verification instructions",
+    link: `/signature-verification/${docsVersion}`,
   });
+
+  if (docsVersion === "v1") {
+    links.push({
+      emoji: "🔑",
+      label: "themisto.pub",
+      link: "/keys/themisto.pub",
+    });
+  }
 }
 ---
 
