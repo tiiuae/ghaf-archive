@@ -129,16 +129,6 @@ get_recursively() {
 	fi
 }
 
-tar_subdirs() {
-	outdir="$1"
-	find "$outdir" -type d -name 'build_*-commit_*' | while read -r build_dir; do
-		find "$build_dir" -type d -mindepth 1 -maxdepth 1 | while read -r target_dir; do
-			target_reldir="$(basename "$target_dir")"
-			tar -cf "${target_dir}.tar" -C "$build_dir" "$target_reldir"
-		done
-	done
-}
-
 ################################################################################
 
 main() {
@@ -156,7 +146,6 @@ main() {
 	exit_unless_valid_url "$URL"
 	echo "Downloading files to $OUTDIR/artifacts"
 	get_recursively "$URL" "$OUTDIR"
-	tar_subdirs "$OUTDIR/artifacts"
 	printf "\nWrote: '%s'\n" "$(readlink -f "$OUTDIR/artifacts")"
 }
 
