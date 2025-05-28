@@ -33,8 +33,8 @@ usage() {
 ################################################################################
 
 argparse() {
-	OPTIND=1
-	while getopts "h:tba:" copt; do
+	OPTIND=1; GHAF_VERSION=""; BUCKET="ghaf-artifacts"; ARTIFACTS_URL="";
+	while getopts ":h:t:b:a:" copt; do
 		case "${copt}" in
 		h)
 			usage
@@ -46,11 +46,13 @@ argparse() {
 		b)
 			BUCKET="$OPTARG"
 			;;
-		u)
+		a)
 			ARTIFACTS_URL="$OPTARG"
+			BUILD_PATH=$(echo "${ARTIFACTS_URL%/}" | cut -d/ -f4-)
+			ARTIFACTS_LOCATION="/tmp/$BUILD_PATH"
 			;;
 		*)
-			print_err "unrecognized option"
+			echo "unrecognized option"
 			usage
 			exit 1
 			;;
@@ -58,24 +60,20 @@ argparse() {
 	done
 	shift $((OPTIND - 1))
 	if [ -n "$*" ]; then
-		print_err "unsupported positional argument(s): '$*'"
+		echo "unsupported positional argument(s): '$*'"
 		exit 1
 	fi
 	if [ -z "$ARTIFACTS_URL" ]; then
-		print_err "missing mandatory option (-a)"
+		echo "missing mandatory option (-a)"
 		usage
 		exit 1
 	fi
 	if [ -z "$GHAF_VERSION" ]; then
-		print_err "missing mandatory option (-t)"
+		echo "missing mandatory option (-t)"
 		usage
 		exit 1
 	fi
 }
-
-BUCKET="${BUCKET:-'ghaf-artifacts'}"
-BUILD_PATH=$(echo "${ARTIFACTS_URL%/}" | cut -d/ -f4-)
-ARTIFACTS_LOCATION="/tmp/$BUILD_PATH"
 
 check_files() {
 	echo "[+] Checking all files are present before downloading..."
@@ -122,7 +120,7 @@ upload_files() {
 
 exit_unless_command_exists() {
 	if ! command -v "$1" &>/dev/null; then
-		print_err "command '$1' is not installed (Hint: are you inside a nix-shell?)"
+		echo "command '$1' is not installed (Hint: are you inside a nix-shell?)"
 		exit 1
 	fi
 }
@@ -134,6 +132,7 @@ main() {
 
 	echo "ARTIFACTS: $ARTIFACTS_URL"
 	echo "GHAF VERSION: $GHAF_VERSION"
+	echo "BUCKET: $BUCKET"
 
 	DOWNLOAD=1
 	if [ -d "$ARTIFACTS_LOCATION" ]; then
