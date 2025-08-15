@@ -1,0 +1,23 @@
+---
+import Files from "../../layouts/Files.astro";
+import { getArtifactsInBucket } from "../../lib/artifacts";
+import { S3_ENDPOINT, S3_REGION } from "../../lib/constants";
+
+const files = await getArtifactsInBucket("gala", "");
+const storagePath = `https://${S3_REGION}.${S3_ENDPOINT}/gala`;
+---
+
+<Files title="Gala Packages">
+  <div class="border-solid border-2 rounded-md p-4">
+    <h2>Gala packages</h2>
+    <ul>
+      {
+        files.map((file) => (
+          <li>
+            <a href={`${storagePath}/${file}`}>{file}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Files>

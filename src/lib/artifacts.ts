@@ -22,11 +22,9 @@ export async function getGhafReleases(): Promise<string[]> {
   return folders.filter(Boolean) as string[];
 }
 
-export async function getArtifactsInRelease(version: string): Promise<string[]> {
-  const prefix = `${version}/`;
-
+export async function getArtifactsInBucket(bucket: string, prefix: string): Promise<string[]> {
   const command = new ListObjectsV2Command({
-    Bucket: S3_BUCKET,
+    Bucket: bucket,
     Prefix: prefix,
   });
 

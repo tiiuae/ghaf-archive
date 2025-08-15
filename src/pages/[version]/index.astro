@@ -1,6 +1,6 @@
 ---
 import Files from "../../layouts/Files.astro";
-import { getGhafReleases, getArtifactsInRelease } from "../../lib/artifacts";
+import { getGhafReleases, getArtifactsInBucket } from "../../lib/artifacts";
 import { S3_BUCKET, S3_ENDPOINT, S3_REGION } from "../../lib/constants";
 import { getDocsVersion } from "../../lib/calver";
 import type { Rule } from "../../lib/calver";
@@ -28,7 +28,8 @@ const docsRules: Rule[] = [
 ];
 
 const { version } = Astro.params;
-const files = await getArtifactsInRelease(version);
+const prefix = version + "/";
+const files = await getArtifactsInBucket(S3_BUCKET, prefix);
 const release = `https://${S3_REGION}.${S3_ENDPOINT}/${S3_BUCKET}/${version}`;
 const docsVersion = getDocsVersion(docsRules, version.split("-")[1]);
 
