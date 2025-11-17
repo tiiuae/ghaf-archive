@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2022-2025 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 
-# Color 
+# Color
 RED='\e[31m'
 RESET='\e[0m'
 
@@ -34,21 +34,20 @@ BASE_URL="$1"
 [[ "$BASE_URL" != */ ]] && BASE_URL="${BASE_URL}/"
 
 subdirectories=(
-    "aarch64-linux.nvidia-jetson-orin-agx-debug/"
-    "aarch64-linux.nvidia-jetson-orin-nx-debug/"
-    "x86_64-linux.lenovo-x1-carbon-gen11-debug/"
-    "x86_64-linux.nvidia-jetson-orin-agx-debug-from-x86_64/"
-    "x86_64-linux.nvidia-jetson-orin-nx-debug-from-x86_64/"
-    "x86_64-linux.system76-darp11-b-debug/"
+    "packages.aarch64-linux.nvidia-jetson-orin-agx-debug"
+    "packages.aarch64-linux.nvidia-jetson-orin-nx-debug"
+    "packages.x86_64-linux.lenovo-x1-carbon-gen11-debug"
+    "packages.x86_64-linux.nvidia-jetson-orin-agx-debug-from-x86_64"
+    "packages.x86_64-linux.nvidia-jetson-orin-nx-debug-from-x86_64"
+    "packages.x86_64-linux.system76-darp11-b-debug"
 )
 
 main() {
     for subdir in "${subdirectories[@]}"; do
-        local full_url="${BASE_URL}${subdir}"
 	echo
 	echo "* Target: ${subdir}"
         sleep 2
-	bash ./check-one-target.sh ${full_url}
+	bash ./check-one-target.sh "$BASE_URL" "$subdir"
     done
 }
 

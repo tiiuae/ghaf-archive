@@ -26,7 +26,7 @@ usage() {
 	echo ""
 	echo "Example:"
 	echo ""
-	echo "  ./$MYNAME -t ghaf-25.05 -a https://ghaf-jenkins-controller-release.northeurope.cloudapp.azure.com/artifacts/ghaf-release-pipeline/build_1-commit_d3cfd7da8ea961f046ca876fd1de80843bdee658/"
+	echo "  ./$MYNAME -t ghaf-25.11 -a https://ci-release.vedenemo.dev/artifacts/ghaf-release-candidate/20251115_140253267-commit_1f425edf99fbda513953bd85184bf1d8fe005d09/"
 	echo ""
 }
 
@@ -34,7 +34,7 @@ usage() {
 
 argparse() {
 	OPTIND=1; GHAF_VERSION=""; BUCKET="ghaf-artifacts"; ARTIFACTS_URL="";
-	while getopts ":h:t:b:a:" copt; do
+	while getopts "ht:b:a:" copt; do
 		case "${copt}" in
 		h)
 			usage
@@ -83,9 +83,26 @@ check_files() {
 download_artifacts() {
 	echo "[+] Downloading artifacts"
 	./download-artifacts.sh -u "$ARTIFACTS_URL" -o /tmp
-	if [[ -f "$ARTIFACTS_LOCATION"/index.html ]]; then
-		rm "$ARTIFACTS_LOCATION"/index.html
-	fi
+}
+
+prepare_artifacts() {
+	# Remove all index.html files
+	find "$ARTIFACTS_LOCATION" -name "index.html" -type f -delete
+	# Move all subdirs from scs/* and test-results/* to ARTIFACTS_LOCATION subdirs
+	for dir in "$ARTIFACTS_LOCATION"/*/; do
+		if [ ! -d "$dir" ]; then contine; fi
+		subdir=$(basename "$dir")
+		if [ -d "$ARTIFACTS_LOCATION/scs/$subdir" ]; then
+			mv "$ARTIFACTS_LOCATION/scs/$subdir" "$ARTIFACTS_LOCATION/$subdir/scs"
+		fi
+		if [ -d "$ARTIFACTS_LOCATION/test-results/$subdir" ]; then
+			mv "$ARTIFACTS_LOCATION/test-results/$subdir" "$ARTIFACTS_LOCATION/$subdir/test-results"
+		fi
+	done
+	# Remove now unnecessary scs/ and test-restuls/ directories
+	rm -fr "$ARTIFACTS_LOCATION/scs" "$ARTIFACTS_LOCATION/test-results"
+	# Remove possible doc target dir that should not be included in the release artifacts
+	find "$ARTIFACTS_LOCATION" -maxdepth 1 -name "*doc" -type d -exec rm -r {} +
 }
 
 verify_signatures() {
@@ -152,6 +169,7 @@ main() {
 		download_artifacts
 	fi
 
+	prepare_artifacts
 	verify_signatures
 	ask_to_continue "uploading"
 	create_tarballs

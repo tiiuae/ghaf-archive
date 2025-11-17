@@ -31,7 +31,7 @@ usage() {
 	echo ""
 	echo "Example:"
 	echo ""
-	echo "  ./$MYNAME -u https://ghaf-jenkins-controller-dev.azure.com/path/to/artifact/"
+	echo "  ./$MYNAME -u https://ci-release.vedenemo.dev/artifacts/path/to/artifact/"
 	echo ""
 }
 
@@ -142,7 +142,6 @@ main() {
 		set -x
 	fi
 	exit_unless_command_exists wget
-	exit_unless_command_exists tar
 	exit_unless_valid_url "$URL"
 	echo "Downloading files to $OUTDIR/artifacts"
 	get_recursively "$URL" "$OUTDIR"
