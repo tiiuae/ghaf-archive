@@ -1,17 +1,28 @@
+#!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2022-2024 TII (SSRC) and the Ghaf contributors
+# SPDX-License-Identifier: Apache-2.0
+
+set -e          # exit immediately if a command fails
+set -u          # treat unset variables as an error and exit
+set -o pipefail # exit if any pipeline command fails
+
+KEYSDIR=$(realpath "$(dirname "$0")/../public/keys")
+
 verify_image() {
 	echo "Verifying image signature..."
-	nix run github:tiiuae/ci-yubi/bdb2dbf#verify -- \
-		--cert INT-Ghaf-Devenv-Image \
-		--path "$1" \
-		--sigfile "$2"
+	trg="$1"
+	sig="$2"
+	openssl dgst -verify \
+		"$KEYSDIR/GhafInfraSignECP256.pub" -signature "$sig" "$trg"
 }
 
 verify_provenance() {
 	echo "Verifying provenance signature..."
-	nix run github:tiiuae/ci-yubi/bdb2dbf#verify -- \
-		--cert INT-Ghaf-Devenv-Provenance \
-		--path "$1" \
-		--sigfile "$2"
+	trg="$1"
+	sig="$2"
+	openssl pkeyutl -verify -inkey \
+		"$KEYSDIR/GhafInfraSignProv.pub" -pubin -sigfile "$sig" -in "$trg" -rawin
 }
 
 BUILD_DIR="$1"

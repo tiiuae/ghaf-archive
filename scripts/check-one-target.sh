@@ -9,15 +9,16 @@ RED='\e[31m'
 RESET='\e[0m'
 
 show_help() {
-	echo "Usage: $0 <URL>"
+	echo "Usage: $0 <BASE_URL> <SUBDIR>"
 	echo
 	echo "This script checks for the presence of expected files and folders at the specified URL."
 	echo
 	echo "Arguments:"
-	echo "  URL   The base URL where the artifacts are located."
+	echo "  BASE_URL   The base URL where the artifacts are located."
+	echo "  SUBDIR     The subdir where the artifacts are located."
 	echo
 	echo "Example:"
-	echo "  $0 https://example.com/artifacts/path/"
+	echo "  $0 https://example.com/artifacts/path/ "
 }
 
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
@@ -26,44 +27,40 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
 fi
 
 if [ -z "$1" ]; then
-	echo -e "${RED}Error: No URL provided.${RESET}"
+	echo -e "${RED}Error: No BASE_URL provided.${RESET}"
 	show_help
 	exit 1
 fi
+BASE_URL="${1%/}"
 
-FULL_URL="$1"
+if [ -z "$2" ]; then
+	echo -e "${RED}Error: No SUBDIR provided.${RESET}"
+	show_help
+	exit 1
+fi
+SUBDIR="${2%/}"
 
-[[ "$FULL_URL" != */ ]] && FULL_URL="${FULL_URL}/"
-
-# Check if reachable
-if ! curl --head --silent --fail "$FULL_URL" >/dev/null; then
-	echo -e "${RED}Error: The URL is not reachable or the server is down.${RESET}"
+if ! curl --head --silent --fail "$BASE_URL" >/dev/null; then
+	echo -e "${RED}Error: The BASE_URL is not reachable or the server is down.${RESET}"
 	exit 1
 fi
 
-declare -A expected_files=(
-	["scs/provenance.json"]=file
-	["scs/provenance.json.sig"]=file
-	["scs/sbom.cdx.json"]=file
-	["scs/sbom.csv"]=file
-	["scs/sbom.spdx.json"]=file
-	["test-results/Robot-Framework/test-suites/bat/log.html"]=file
-	["test-results/Robot-Framework/test-suites/bat/output.xml"]=file
-	["test-results/Robot-Framework/test-suites/bat/report.html"]=file
-	["test-results/Robot-Framework/test-suites/relayboot/log.html"]=file
-	["test-results/Robot-Framework/test-suites/relayboot/output.xml"]=file
-	["test-results/Robot-Framework/test-suites/relayboot/report.html"]=file
-	["test-results/Robot-Framework/test-suites/relay-turnoff/log.html"]=file
-	["test-results/Robot-Framework/test-suites/relay-turnoff/output.xml"]=file
-	["test-results/Robot-Framework/test-suites/relay-turnoff/report.html"]=file
+expected_files=(
+	"scs/$SUBDIR/provenance.json"
+	"scs/$SUBDIR/provenance.json.sig"
+	"test-results/$SUBDIR/Robot-Framework/test-suites/bat/log.html"
+	"test-results/$SUBDIR/Robot-Framework/test-suites/bat/output.xml"
+	"test-results/$SUBDIR/Robot-Framework/test-suites/bat/report.html"
+	"test-results/$SUBDIR/Robot-Framework/test-suites/relayboot/log.html"
+	"test-results/$SUBDIR/Robot-Framework/test-suites/relayboot/output.xml"
+	"test-results/$SUBDIR/Robot-Framework/test-suites/relayboot/report.html"
+	"test-results/$SUBDIR/Robot-Framework/test-suites/relay-turnoff/log.html"
+	"test-results/$SUBDIR/Robot-Framework/test-suites/relay-turnoff/output.xml"
+	"test-results/$SUBDIR/Robot-Framework/test-suites/relay-turnoff/report.html"
 )
 
-# Img files for check
-image_files=("nixos.img.zst" "nixos.img.zst.sig" "disk1.raw.zst" "disk1.raw.zst.sig" "*.img.zst" "*.img.zst.sig")
-image_found_count=0
-image_found=()
-
-declare -a missing_files=()
+image_files=(".raw.zst" ".img.zst")
+missing_files=()
 
 check_file() {
 	local url=$1
@@ -76,39 +73,38 @@ check_file() {
 }
 
 check_expected_files() {
-	for file in "${!expected_files[@]}"; do
-		local full_url="${FULL_URL}${file}"
-		echo -n "Checking ${file}... "
-		if ! check_file "$full_url"; then
+	for file in "${expected_files[@]}"; do
+		echo -n "Checking ${file} ... "
+		if ! check_file "$BASE_URL/$file"; then
 			echo -e "${RED}✗ Missing${RESET}"
-			missing_files+=("$full_url")
+			missing_files+=("$file")
 		fi
 	done
 }
 
-# Check image files
 check_image_files() {
-	for dir in "" "sd-image/"; do
-		local target_url="${FULL_URL}${dir}"
-		local contents=$(curl --silent "$target_url")
+	local sig_file=""
+	for dir in "" "sd-image"; do
+		local img_url="${BASE_URL}/${SUBDIR}/${dir}/"
+		local contents
+		contents=$(curl --silent "$img_url")
 
 		for img_file in "${image_files[@]}"; do
-			if echo "$contents" | grep -qE "${img_file//\*/.*}"; then
-				echo -e "Checking ${dir}${img_file}... ${GREEN}✓ Found${RESET}"
-				image_found+=("${img_file}")
-				((image_found_count++))
+			img_name=$(echo "$contents" | grep -m1 -oE "[^/>]+${img_file}")
+			if [ ! -z "$img_name" ]; then
+				echo -e "Checking ${SUBDIR}/${dir}/*${img_file} ... ${GREEN}✓ Found${RESET}"
+				sig_file="$BASE_URL/scs/${SUBDIR}/${dir}/${img_name}.sig"
+		        echo -n "Checking scs/${SUBDIR}/${dir}/${img_name}.sig ... "
+	            if ! check_file "$sig_file"; then
+			        echo -e "${RED}✗ Missing${RESET}"
+					missing_files+=("$sig_file")
+				fi
 			fi
 		done
 	done
-
-	# Count missing
-	if [ "$image_found_count" -lt 2 ]; then
-		for img_file in "${image_files[@]}"; do
-			if [[ ! " ${image_found[@]} " =~ " ${img_file} " ]]; then
-				echo -e "Checking ${img_file}... ${RED}✗ Missing${RESET}"
-				missing_files+=("${FULL_URL}${img_file}")
-			fi
-		done
+	if [ -z "$sig_file" ]; then
+	 	echo -e "Checking ${SUBDIR}:IMAGE_FILE ... ${RED}✗ Missing${RESET}"
+		missing_files+=("${SUBDIR}:IMAGE_FILE")
 	fi
 }
 
@@ -124,9 +120,7 @@ print_summary() {
 }
 
 main() {
-	echo "Checking artifacts in ${FULL_URL}..."
-	sleep 6
-
+	echo "Checking '${SUBDIR}' artifacts in ${BASE_URL} ..."
 	check_expected_files
 	check_image_files
 	print_summary

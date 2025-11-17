@@ -23,6 +23,7 @@
             nodejs
             nodePackages.prettier
             minio-client
+            openssl
           ];
         };
       }
