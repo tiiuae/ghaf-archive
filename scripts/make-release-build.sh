@@ -125,8 +125,9 @@ create_tarballs() {
 	mkdir -p "/tmp/$GHAF_VERSION"
 	for dir in "$ARTIFACTS_LOCATION"/*/; do
 		target_reldir="$(basename "$dir")"
-		tar -c -f "/tmp/$GHAF_VERSION/$target_reldir.tar" -C "$ARTIFACTS_LOCATION" "$target_reldir"
-		echo " --> created /tmp/$GHAF_VERSION/$target_reldir.tar"
+		tarball=${target_reldir#"packages."} # strip possible 'packages.' prefix
+		tar -c -f "/tmp/$GHAF_VERSION/$tarball.tar" -C "$ARTIFACTS_LOCATION" "$target_reldir"
+		echo " --> created /tmp/$GHAF_VERSION/$tarball.tar"
 	done
 }
 
