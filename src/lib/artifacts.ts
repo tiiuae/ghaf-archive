@@ -16,13 +16,17 @@ export async function getGhafReleases(): Promise<string[]> {
 
   const result = await s3.send(command);
 
-  const folders = (result.CommonPrefixes || []).map((cp) => cp.Prefix?.split('/')[0]);
+  const folders = (result.CommonPrefixes || []).map(
+    (cp) => cp.Prefix?.split("/")[0],
+  );
 
   folders.sort().reverse();
   return folders.filter(Boolean) as string[];
 }
 
-export async function getArtifactsInRelease(version: string): Promise<string[]> {
+export async function getArtifactsInRelease(
+  version: string,
+): Promise<string[]> {
   const prefix = `${version}/`;
 
   const command = new ListObjectsV2Command({
