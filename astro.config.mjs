@@ -8,6 +8,6 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  output: 'static',
-  site: 'https://archive.vedenemo.dev',
+  output: "static",
+  site: "https://archive.vedenemo.dev",
 });
