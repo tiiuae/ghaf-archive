@@ -5,11 +5,11 @@ interface Range {
 
 export interface Rule {
   range: Range;
-  version: string;
+  return: string;
 }
 
 function parse(ver: string): [number, number, number] {
-  const parts = ver.split('.').map(Number);
+  const parts = ver.split(".").map(Number);
   return [parts[0] ?? 0, parts[1] ?? 0, parts[2] ?? 0];
 }
 
@@ -28,9 +28,9 @@ function isInRange(version: string, min: string, max: string | null): boolean {
   return aboveMin && belowMax;
 }
 
-export function getDocsVersion(rules: Rule[], version: string): string | null {
+export function parseRules(rules: Rule[], version: string): string | null {
   const rule = rules.find(({ range }) =>
-    isInRange(version, range.min, range.max)
+    isInRange(version, range.min, range.max),
   );
-  return rule?.version ?? null;
+  return rule?.return ?? null;
 }
