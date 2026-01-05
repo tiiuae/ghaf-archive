@@ -2,7 +2,7 @@
 import Files from "../../layouts/Files.astro";
 import { getGhafReleases, getArtifactsInRelease } from "../../lib/artifacts";
 import { S3_BUCKET, S3_ENDPOINT, S3_REGION } from "../../lib/constants";
-import { getDocsVersion } from "../../lib/calver";
+import { parseRules } from "../../lib/calver";
 import type { Rule } from "../../lib/calver";
 
 export async function getStaticPaths() {
@@ -12,25 +12,46 @@ export async function getStaticPaths() {
   }));
 }
 
+const { version } = Astro.params;
+
 const docsRules: Rule[] = [
   {
     range: { min: "23.09", max: "24.06" },
-    version: "v1",
+    return: "v1",
   },
   {
     range: { min: "24.09", max: "24.09.2" },
-    version: "v2",
+    return: "v2",
   },
   {
     range: { min: "24.09.3", max: null },
-    version: "v3",
+    return: "v3",
   },
 ];
 
-const { version } = Astro.params;
+const flashScriptLocations: Rule[] = [
+  {
+    range: { min: "23.09", max: "24.12.3" },
+    return: `https://raw.githubusercontent.com/tiiuae/ghaf/refs/tags/${version}/packages/flash/flash.sh`,
+  },
+  {
+    range: { min: "24.12.4", max: null },
+    return: `https://raw.githubusercontent.com/tiiuae/ghaf/refs/tags/${version}/packages/pkgs-by-name/flash-script/flash.sh`,
+  },
+];
+
 const files = await getArtifactsInRelease(version);
 const release = `https://${S3_REGION}.${S3_ENDPOINT}/${S3_BUCKET}/${version}`;
-const docsVersion = getDocsVersion(docsRules, version.split("-")[1]);
+const docsVersion = parseRules(docsRules, version.split("-")[1]);
+const flashingScript = parseRules(flashScriptLocations, version.split("-")[1]);
+
+if (docsVersion === null) {
+  throw new Error(`${version} does not match any docs rule!`);
+}
+
+if (flashingScript === null) {
+  throw new Error(`${version} does not match any flashing script rule!`);
+}
 
 let links = [
   {
@@ -43,22 +64,24 @@ let links = [
     label: "Source code",
     link: `https://github.com/tiiuae/ghaf/tree/${version}`,
   },
-];
-
-if (docsVersion !== null) {
-  links.push({
+  {
     emoji: "✅",
     label: "Signature verification instructions",
     link: `/signature-verification/${docsVersion}`,
-  });
+  },
+  {
+    emoji: "📜",
+    label: "flash.sh",
+    link: flashingScript,
+  },
+];
 
-  if (docsVersion === "v1") {
-    links.push({
-      emoji: "🔑",
-      label: "themisto.pub",
-      link: "/keys/themisto.pub",
-    });
-  }
+if (docsVersion === "v1") {
+  links.push({
+    emoji: "🔑",
+    label: "themisto.pub",
+    link: "/keys/themisto.pub",
+  });
 }
 ---
 
@@ -81,7 +104,7 @@ if (docsVersion !== null) {
         ))
       }
     </ul>
-    <h2 class="mt-4">Artifacts</h2>
+    <h2 class="mt-4">📦 Artifacts</h2>
     <ul>
       {
         files.map((file) => (
