@@ -24,8 +24,12 @@ const docsRules: Rule[] = [
     return: "v2",
   },
   {
-    range: { min: "24.09.3", max: null },
+    range: { min: "24.09.3", max: "25.11.1" },
     return: "v3",
+  },
+  {
+    range: { min: "25.12.1", max: null },
+    return: "v4",
   },
 ];
 
@@ -81,6 +85,19 @@ if (docsVersion === "v1") {
     emoji: "🔑",
     label: "themisto.pub",
     link: "/keys/themisto.pub",
+  });
+}
+
+if (docsVersion === "v4") {
+  links.push({
+    emoji: "🔑",
+    label: "GhafInfraSignECP256.pub",
+    link: "/keys/GhafInfraSignECP256.pub",
+  });
+  links.push({
+    emoji: "🔑",
+    label: "GhafInfraSignProv.pub",
+    link: "/keys/GhafInfraSignProv.pub",
   });
 }
 ---
