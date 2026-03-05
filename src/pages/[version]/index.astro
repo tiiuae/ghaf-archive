@@ -28,8 +28,19 @@ const docsRules: Rule[] = [
     return: "v3",
   },
   {
-    range: { min: "25.12.1", max: null },
+    range: { min: "25.12.1", max: "26.01.1" },
     return: "v4",
+  },
+  {
+    range: { min: "26.02.1", max: null },
+    return: "v5",
+  },
+];
+
+const securebootDocsRules: Rule[] = [
+  {
+    range: { min: "26.02.1", max: null },
+    return: "v1",
   },
 ];
 
@@ -48,6 +59,7 @@ const files = await getArtifactsInRelease(version);
 const release = `https://${S3_REGION}.${S3_ENDPOINT}/${S3_BUCKET}/${version}`;
 const docsVersion = parseRules(docsRules, version.split("-")[1]);
 const flashingScript = parseRules(flashScriptLocations, version.split("-")[1]);
+const securebootDocs = parseRules(securebootDocsRules, version.split("-")[1]);
 
 const prettyVersion = "Ghaf " + version.split("-")[1];
 
@@ -75,12 +87,21 @@ let links = [
     label: "Signature verification instructions",
     link: `/signature-verification/${docsVersion}`,
   },
-  {
-    emoji: "📜",
-    label: "flash.sh",
-    link: flashingScript,
-  },
 ];
+
+if (securebootDocs) {
+  links.push({
+    emoji: "📄",
+    label: "Secure boot instructions",
+    link: `/secure-boot/${securebootDocs}`,
+  });
+}
+
+links.push({
+  emoji: "📜",
+  label: "flash.sh",
+  link: flashingScript,
+});
 
 if (docsVersion === "v1") {
   links.push({
