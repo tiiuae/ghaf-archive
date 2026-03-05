@@ -3,14 +3,15 @@
 
 @layer base {
   body {
-    background-color: var(--color-black);
-    color: var(--color-white);
+    background-color: #0d1310;
+    color: #b3d2b9;
   }
   h1 {
     font-size: var(--text-2xl);
   }
   h2 {
     font-size: var(--text-xl);
+    color: #fabc3c;
   }
   h3 {
     font-size: var(--text-lg);
@@ -20,6 +21,26 @@
     text-decoration-line: underline;
   }
   a:hover {
-    color: var(--color-green-200);
+    color: #3d8252;
+  }
+  pre {
+    background-color: #141f1a !important;
+    padding: 1em;
+    border: solid 1px #27342d;
+  }
+  :not(pre) > code {
+    background-color: #141f1a;
+    color: #b3d2b9 !important;
+    padding: 0.125rem 0.375rem;
+    font-weight: normal !important;
+  }
+  code::before {
+    content: none !important;
+  }
+  code::after {
+    content: none !important;
+  }
+  prose {
+    font-family: "Lato";
   }
 }
