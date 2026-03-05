@@ -49,6 +49,8 @@ const release = `https://${S3_REGION}.${S3_ENDPOINT}/${S3_BUCKET}/${version}`;
 const docsVersion = parseRules(docsRules, version.split("-")[1]);
 const flashingScript = parseRules(flashScriptLocations, version.split("-")[1]);
 
+const prettyVersion = "Ghaf " + version.split("-")[1];
+
 if (docsVersion === null) {
   throw new Error(`${version} does not match any docs rule!`);
 }
@@ -102,12 +104,12 @@ if (docsVersion === "v4") {
 }
 ---
 
-<Files title={version}>
+<Files title={prettyVersion}>
   <div class="flex gap-1"></div>
 
   <div class="border-solid border-2 rounded-md p-4">
     <h2>
-      <a class="text-white opacity-60 hover:opacity-100" href="/">Releases</a>/{
+      <a class="text-[#F15025] hover:text-inherit" href="/">Releases</a>/{
         version
       }
     </h2>

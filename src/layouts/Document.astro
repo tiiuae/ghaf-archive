@@ -5,8 +5,10 @@ const { frontmatter } = Astro.props;
 ---
 
 <Base title={frontmatter.title}>
-  <div class="w-5xl m-auto mt-8">
-    <div class="prose prose-invert max-w-full">
+  <div class="w-4xl m-auto mt-8">
+    <div
+      class="font-sans prose prose-invert max-w-full prose-pre:rounded-none prose-a:text-[#b3d2b9] prose-a:hover:text-white"
+    >
       <slot />
     </div>
   </div>
