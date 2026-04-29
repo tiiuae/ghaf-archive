@@ -20,7 +20,7 @@
       {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            nodejs
+            nodejs_25
             prettier
             minio-client
             openssl
